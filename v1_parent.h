@@ -10,11 +10,11 @@
 
 #define FILE_NAME "nums.txt"
 #ifndef BUF_SIZE        /* Allow "cc -D" to override definition */
-#define BUF_SIZE 10
+#define BUF_SIZE 20
 #endif
 
 void parent1();
 
 void extractPairs(int *a, int *b, char *buf);
 
-int Gcd(int a, int b);
+int checkbuf(char *buf);
