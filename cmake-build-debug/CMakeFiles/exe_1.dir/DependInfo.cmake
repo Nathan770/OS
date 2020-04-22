@@ -4,10 +4,12 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_C
-  "/Users/nathan/OS/exe 1/main.c" "/Users/nathan/OS/exe 1/cmake-build-debug/CMakeFiles/exe_1.dir/main.c.o"
-  "/Users/nathan/OS/exe 1/v1_parent.c" "/Users/nathan/OS/exe 1/cmake-build-debug/CMakeFiles/exe_1.dir/v1_parent.c.o"
+  "C:/Users/me/CLionProjects/OSex1/main.c" "C:/Users/me/CLionProjects/OSex1/cmake-build-debug/CMakeFiles/exe_1.dir/main.c.obj"
+  "C:/Users/me/CLionProjects/OSex1/v1_parent.c" "C:/Users/me/CLionProjects/OSex1/cmake-build-debug/CMakeFiles/exe_1.dir/v1_parent.c.obj"
+  "C:/Users/me/CLionProjects/OSex1/v2_child.c" "C:/Users/me/CLionProjects/OSex1/cmake-build-debug/CMakeFiles/exe_1.dir/v2_child.c.obj"
+  "C:/Users/me/CLionProjects/OSex1/v2_parent.c" "C:/Users/me/CLionProjects/OSex1/cmake-build-debug/CMakeFiles/exe_1.dir/v2_parent.c.obj"
   )
-set(CMAKE_C_COMPILER_ID "AppleClang")
+set(CMAKE_C_COMPILER_ID "GNU")
 
 # The include file search paths:
 set(CMAKE_C_TARGET_INCLUDE_PATH

@@ -1,47 +1,69 @@
-//
-// Created by me on 12/04/2020.
-//
-
 #include "v1_parent.h"
-#include <unistd.h>
 
 void parent1() {
-    int inputFd, outputFd, openFlags;
-    mode_t filePerms;
-    ssize_t numRead;
-    char buf[BUF_SIZE];
-    int a, b;
-    int gcd = 0;
-    int status;
-    char *number =
 
-        printf("start");
-        if (fgets(buf, sizeof(buf), stdin) == NULL) {
-            perror("error on stdin");
-            exit(1);
+    char buf[BUF_SIZE];
+    int a, b, check = 0;
+    int status;
+
+    printf("Enter pair of numbers");
+    if (fgets(buf, sizeof(buf), stdin) == NULL) {
+        perror("error on stdin");
+        exit(1);
+    }
+    while (buf[0] != '0') {
+        check = checkbuf(buf);
+        if (check == 0) {
+            printf("Illegal input \n try again !\n ");
+            goto input;
         }
+
         int pid = fork();
         switch (pid) {
             case -1:
                 perror("fork failed");
                 exit(1);
             case 0:
-                printf("child");
                 extractPairs(&a, &b, buf);
-                char * nums = {(char) a, (char) b};
-                execv("v1_child.c" ,nums);
-                gcd = execlp("./v1_child.c" , "v1_child.c",a,b, (char *)NULL);
-                exit(gcd);
+                char arr[5];
+                char brr[5];
+                sprintf(brr, "%d", b);
+                sprintf(arr, "%d", a);
+                char *nums[] = {"./child1", arr, brr, NULL};
+                execv("child1", nums);
+                printf("execv fail");
+                exit(-1);
             default:
                 wait(&status);
-                printf("parent");
-                gcd = WEXITSTATUS(status);
-                printf("%s gcd: %d",buf, status);
+                printf("\n %s gcd: %d \n", buf, WEXITSTATUS(status));
+                break;
+        }
+        input:
+        printf("Enter pair of numbers \n Press 0 to exit \n");
+        if (fgets(buf, sizeof(buf), stdin) == NULL) {
+            perror("error on stdin");
+            exit(1);
+        }
+    }
+}
 
-                    break;
+int checkbuf(char *buf) {
+    int count = 0;
+    int i;
+    for (i = 0; i < strlen(buf); ++i) {
+        if (buf[i] == ' ' && (buf[i - 1] <= '9' && buf[i - 1] >= '0')) {
+            count++;
+        }
+        if (buf[i] != ' ' && !(buf[i] <= '9' && buf[i] >= '0')) {
+            break;
         }
 
     }
+    if (count == 1 && ((strlen(buf) - i) == 1)) {
+        return 1;
+    }
+    return 0;
+}
 
 
 void extractPairs(int *a, int *b, char *buf) {

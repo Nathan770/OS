@@ -6,23 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/Users/nathan/OS/exe 1/v1_parent.c
-v1_parent.h
-/Users/nathan/OS/exe 1/v1_parent.h
-unistd.h
--
-
-/Users/nathan/OS/exe 1/v1_parent.h
+C:/Users/me/CLionProjects/OSex1/main.c
 stdio.h
--
-sys/stat.h
--
-unistd.h
--
-fcntl.h
--
-stdlib.h
--
-string.h
 -
 

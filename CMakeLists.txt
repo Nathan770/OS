@@ -9,6 +9,7 @@ add_executable(exe_1
         main.c
         v1_parent.c
         v1_parent.h
+        v2_parent.c
+        v2_parent.h
+        v2_child.c
         )
-add_executable(exe_2
-        v1_child.c)
