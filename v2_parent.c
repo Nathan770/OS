@@ -25,6 +25,27 @@ int main(int argc, char *argv[]) {     /* Pipe file descriptors */
         exit(1);
     }
 
+    //parent close unnecessary fd
+    if (close(child1_in_pipe[0]) == -1 || close(child2_in_pipe[0]) == -1 || close(child1_out_pipe[1]) == -1 ||
+        close(child2_out_pipe[1]) == -1) {
+        perror("parent close unnecessary fd failed");
+    }
+
+    for (int i = 0; i <= fileLines; i += 2) {
+        if (write(child1_in_pipe[1], &nums[i], sizeof(int) * 2) < 0) {
+            perror("child1 - partial/failed write");
+        }
+        i += 2;
+        if (i >= fileLines) break;
+        if (write(child2_in_pipe[1], &nums[i], sizeof(int) * 2) < 0) {
+            perror("child2 - partial/failed write");
+        }
+    }
+
+    if (close(child1_in_pipe[1]) == -1 || close(child2_in_pipe[1]) == -1) {
+        perror("parent closing writers failed");
+    }
+
     child1 = fork();
     switch (child1) {
         case -1:
@@ -91,13 +112,6 @@ int main(int argc, char *argv[]) {     /* Pipe file descriptors */
                 close(child1_out_pipe[1])) {
                 perror("child2 closing unnecessary fd failed");
             }
-            //optional
-//            if (waitpid(child1, NULL, 0) == -1) {
-//                perror("child1 waiting failed");
-//            }
-//            if (waitpid(child2, NULL, 0) == -1) {
-//                perror("child2 waiting failed");
-//            }
 
             int a = 0, b = 0;
             char arr[5];
@@ -119,24 +133,11 @@ int main(int argc, char *argv[]) {     /* Pipe file descriptors */
             break;
     }
 
-    //parent close unnecessary fd
-    if (close(child1_in_pipe[0]) == -1 || close(child2_in_pipe[0]) == -1 || close(child1_out_pipe[1]) == -1 ||
-        close(child2_out_pipe[1]) == -1) {
-        perror("parent close unnecessary fd failed");
+    if (waitpid(child1, NULL, 0) == -1) {
+        perror("child1 waiting failed");
     }
-
-    for (int i = 0; i <= fileLines; i += 2) {
-        if (write(child1_in_pipe[1], &nums[i], 2 * sizeof(int)) < 0) {
-            perror("child1 - partial/failed write");
-        }
-        i += 2;
-        if (i >= fileLines) break;
-        if (write(child2_in_pipe[1], &nums[i], 2 * sizeof(int)) < 0) {
-            perror("child2 - partial/failed write");
-        }
-    }
-    if (close(child1_in_pipe[1]) == -1 || close(child2_in_pipe[1])) {
-        perror("parent closing writers failed");
+    if (waitpid(child2, NULL, 0) == -1) {
+        perror("child2 waiting failed");
     }
 
     for (int i = 0; i < fileLines; i += 2) {
