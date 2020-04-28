@@ -31,6 +31,66 @@ int main(int argc, char *argv[]) {     /* Pipe file descriptors */
         perror("parent close unnecessary fd failed");
     }
 
+    child1 = fork();
+    switch (child1) {
+        case -1:
+            perror("fork1");
+        case 0:
+            if (dup2(child1_in_pipe[0], STDIN_FILENO) == -1) {
+                perror("child1 dup2 reader failed");
+            }
+            if (close(child1_in_pipe[0]) == -1 || close(child1_in_pipe[1]) == -1) {
+                perror("child1 closing dup failed");
+            }
+
+            if (dup2(child1_out_pipe[1], STDOUT_FILENO) == -1) {
+                perror("child1 dup2 writer failed");
+            }
+            if (close(child1_out_pipe[0]) == -1 || close(child1_out_pipe[1]) == -1) {
+                perror("child1 closing dup failed");
+            }
+
+            if (close(child2_in_pipe[0]) == -1 || close(child2_in_pipe[1]) == -1 || close(child2_out_pipe[0]) == -1 ||
+                close(child2_out_pipe[1]) == -1) {
+                perror("child1 closing unnecessary fd failed");
+            }
+            char *args[] = {"./child2", NULL};
+            execv("child2", args);
+            perror("execv error child1");
+        default:
+            break;
+    }
+    child2 = fork();
+    switch (child2) {
+        case -1:
+            perror("fork2");
+        case 0:
+            if (dup2(child2_in_pipe[0], STDIN_FILENO) == -1) {
+                perror("child2 dup2 reader failed");
+            }
+            if (close(child2_in_pipe[0]) == -1 || close(child2_in_pipe[1])) {
+                perror("child2 closing dup failed");
+            }
+
+            if (dup2(child2_out_pipe[1], STDOUT_FILENO) == -1) {
+                perror("child2 dup2 sriter failed");
+            }
+            if (close(child2_out_pipe[0]) == -1 || close(child2_out_pipe[1])) {
+                perror("child2 closing dup failed");
+            }
+
+            if (close(child1_in_pipe[0]) == -1 || close(child1_in_pipe[1]) || close(child1_out_pipe[0]) ||
+                close(child1_out_pipe[1])) {
+                perror("child2 closing unnecessary fd failed");
+            }
+
+            char *args[] = {"./child2", NULL};
+            execv("child2", args);
+            perror("execv error child2");
+        default:
+            break;
+    }
+
     for (int i = 0; i <= fileLines; i += 2) {
         if (write(child1_in_pipe[1], &nums[i], sizeof(int) * 2) < 0) {
             perror("child1 - partial/failed write");
@@ -46,93 +106,6 @@ int main(int argc, char *argv[]) {     /* Pipe file descriptors */
         perror("parent closing writers failed");
     }
 
-    child1 = fork();
-    switch (child1) {
-        case -1:
-            perror("fork1");
-        case 0:
-            if (dup2(child1_in_pipe[0], 0) == -1) {
-                perror("child1 dup2 reader failed");
-            }
-            if (close(child1_in_pipe[0]) == -1 || close(child1_in_pipe[1]) == -1) {
-                perror("child1 closing dup failed");
-            }
-
-            if (dup2(child1_out_pipe[1], 1) == -1) {
-                perror("child1 dup2 writer failed");
-            }
-            if (close(child1_out_pipe[0]) == -1 || close(child1_out_pipe[1]) == -1) {
-                perror("child1 closing dup failed");
-            }
-
-            if (close(child2_in_pipe[0]) == -1 || close(child2_in_pipe[1]) == -1 || close(child2_out_pipe[0]) == -1 ||
-                close(child2_out_pipe[1]) == -1) {
-                perror("child1 closing unnecessary fd failed");
-            }
-
-            int a = 0, b = 0;
-            char arr[5];
-            char brr[5];
-            char fd[4];
-            while (read(child1_in_pipe[0], &a, sizeof(int)) > 0) {
-                if (read(child1_in_pipe[0], &b, sizeof(int)) < 0) {
-                    break;
-                }
-                snprintf(fd, 4, "%d", child1_out_pipe[1]);
-                sprintf(brr, "%d", b);
-                sprintf(arr, "%d", a);
-                char *args[] = {"./child1", arr, brr, fd, NULL};
-                execv("v2_child", args);
-                perror("execv error child1");
-            }
-            perror("child1 reading failed");
-        default:
-            break;
-    }
-    child2 = fork();
-    switch (child2) {
-        case -1:
-            perror("fork2");
-        case 0:
-            if (dup2(child2_in_pipe[0], 0) == -1) {
-                perror("child2 dup2 reader failed");
-            }
-            if (close(child2_in_pipe[0]) == -1 || close(child2_in_pipe[1])) {
-                perror("child2 closing dup failed");
-            }
-
-            if (dup2(child2_out_pipe[1], 1) == -1) {
-                perror("child2 dup2 sriter failed");
-            }
-            if (close(child2_out_pipe[0]) == -1 || close(child2_out_pipe[1])) {
-                perror("child2 closing dup failed");
-            }
-
-            if (close(child1_in_pipe[0]) == -1 || close(child1_in_pipe[1]) || close(child1_out_pipe[0]) ||
-                close(child1_out_pipe[1])) {
-                perror("child2 closing unnecessary fd failed");
-            }
-
-            int a = 0, b = 0;
-            char arr[5];
-            char brr[5];
-            char fd[4];
-            while (read(child2_in_pipe[0], &a, sizeof(int)) > 0) {
-                if (read(child2_in_pipe[0], &b, sizeof(int)) < 0) {
-                    break;
-                }
-                sprintf(brr, "%d", b);
-                sprintf(arr, "%d", a);
-                snprintf(fd, 4, "%d", child2_out_pipe[1]);
-                char *args[] = {"./child2", arr, brr, fd, NULL};
-                execv("v2_child", args);
-                perror("execv error child2");
-            }
-            perror("child2 reading failed");
-        default:
-            break;
-    }
-
     if (waitpid(child1, NULL, 0) == -1) {
         perror("child1 waiting failed");
     }
@@ -146,6 +119,7 @@ int main(int argc, char *argv[]) {     /* Pipe file descriptors */
         }
         printf("%d %d gcd: %d", nums[i], nums[i + 1], gcd1);
         i += 2;
+        if (i >= fileLines) break;
         if (read(child2_out_pipe[0], &gcd2, sizeof(int)) < 0) {
             perror("read from child2");
         }

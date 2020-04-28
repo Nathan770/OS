@@ -1,18 +1,21 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <io.h>
+#include <unistd.h>
 
 int Gcd(int a, int b);
 
 int main(int argc, char *argv[]) {
-    int a = atoi(argv[1]);
-    int b = atoi(argv[2]);
-    int fd = atoi(argv[3]);
-    int gcd = Gcd(a, b);
-
-    if (write(fd, &gcd, sizeof(int)) < 0) {
-        perror("write to parent failed");
+    int a = 0, b = 0, gcd;
+    while (read(STDIN_FILENO, &a, sizeof(int)) > 0) {
+        if (read(STDIN_FILENO, &b, sizeof(int)) < 0) {
+            break;
+        }
+        gcd = Gcd(a, b);
+        if (write(STDOUT_FILENO, &gcd, sizeof(int)) < 0) {
+            perror("write to parent failed");
+        }
     }
+    perror("child1 reading failed");
     return 0;
 }
 

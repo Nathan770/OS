@@ -3,7 +3,13 @@
 
 CMakeFiles/exe_1.dir/main.c.obj
  C:/Users/me/CLionProjects/OSex1/main.c
+ C:/Users/me/CLionProjects/OSex1/v1_parent.h
 CMakeFiles/exe_1.dir/v1_parent.c.obj
  C:/Users/me/CLionProjects/OSex1/v1_parent.c
+ C:/Users/me/CLionProjects/OSex1/v1_parent.h
+CMakeFiles/exe_1.dir/v2_child.c.obj
+ C:/Users/me/CLionProjects/OSex1/v2_child.c
 CMakeFiles/exe_1.dir/v2_parent.c.obj
+ C:/Users/me/CLionProjects/OSex1/v1_parent.h
  C:/Users/me/CLionProjects/OSex1/v2_parent.c
+ C:/Users/me/CLionProjects/OSex1/v2_parent.h
