@@ -6,6 +6,8 @@ int Gcd(int a, int b);
 
 int main(int argc, char *argv[]) {
     int a = 0, b = 0, gcd;
+
+    //reading in while loop
     while (read(STDIN_FILENO, &a, sizeof(int)) > 0) {
         if (read(STDIN_FILENO, &b, sizeof(int)) < 0) {
             break;

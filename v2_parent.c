@@ -11,8 +11,8 @@ int main(int argc, char *argv[]) {     /* Pipe file descriptors */
     int *nums = getPairs(argv[1], &fileLines);
     int child1, child2;
 
-    int child1_in_pipe[2];
-    int child1_out_pipe[2];
+    int child1_in_pipe[2]; //writing to child1
+    int child1_out_pipe[2]; //reading from child1
     if (0 != pipe(child1_in_pipe) || 0 != pipe(child1_out_pipe)) {
         perror("cannot create pipes for child1");
         exit(1);
@@ -25,16 +25,10 @@ int main(int argc, char *argv[]) {     /* Pipe file descriptors */
         exit(1);
     }
 
-    //parent close unnecessary fd
-    if (close(child1_in_pipe[0]) == -1 || close(child2_in_pipe[0]) == -1 || close(child1_out_pipe[1]) == -1 ||
-        close(child2_out_pipe[1]) == -1) {
-        perror("parent close unnecessary fd failed");
-    }
-
     child1 = fork();
     switch (child1) {
         case -1:
-            perror("fork1");
+            perror("fork1 failed");
         case 0:
             if (dup2(child1_in_pipe[0], STDIN_FILENO) == -1) {
                 perror("child1 dup2 reader failed");
@@ -60,10 +54,11 @@ int main(int argc, char *argv[]) {     /* Pipe file descriptors */
         default:
             break;
     }
+
     child2 = fork();
     switch (child2) {
         case -1:
-            perror("fork2");
+            perror("fork2 failed");
         case 0:
             if (dup2(child2_in_pipe[0], STDIN_FILENO) == -1) {
                 perror("child2 dup2 reader failed");
@@ -91,6 +86,13 @@ int main(int argc, char *argv[]) {     /* Pipe file descriptors */
             break;
     }
 
+    //parent close unnecessary fd
+    if (close(child1_in_pipe[0]) == -1 || close(child2_in_pipe[0]) == -1 || close(child1_out_pipe[1]) == -1 ||
+        close(child2_out_pipe[1]) == -1) {
+        perror("parent close unnecessary fd failed");
+    }
+
+    //parent writing to childern's pipe (2 by2)
     for (int i = 0; i <= fileLines; i += 2) {
         if (write(child1_in_pipe[1], &nums[i], sizeof(int) * 2) < 0) {
             perror("child1 - partial/failed write");
@@ -102,10 +104,11 @@ int main(int argc, char *argv[]) {     /* Pipe file descriptors */
         }
     }
 
+    //closing parent's writing fd
     if (close(child1_in_pipe[1]) == -1 || close(child2_in_pipe[1]) == -1) {
         perror("parent closing writers failed");
     }
-
+    //waiting for the children to finish
     if (waitpid(child1, NULL, 0) == -1) {
         perror("child1 waiting failed");
     }
@@ -113,6 +116,7 @@ int main(int argc, char *argv[]) {     /* Pipe file descriptors */
         perror("child2 waiting failed");
     }
 
+    //reading from children and printing result
     for (int i = 0; i < fileLines; i += 2) {
         if (read(child1_out_pipe[0], &gcd1, sizeof(int)) < 0) {
             perror("read from child1");
@@ -126,6 +130,7 @@ int main(int argc, char *argv[]) {     /* Pipe file descriptors */
         printf("%d %d gcd: %d", nums[i], nums[i + 1], gcd2);
     }
 
+    //closing parent's reading fd
     if (close(child1_out_pipe[0]) == -1 || close(child2_out_pipe[0]) == -1) {
         perror("parent close readers failed");
     }
